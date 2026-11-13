@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>jobradar</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="jobs.js"></script>
+</head>
+<body>
+  <header><h1><a href="index.html">jobradar</a></h1></header>
+  <main>
+    <form id="filters">
+      <label>Search <input name="q" type="search" placeholder="data engineer"></label>
+      <fieldset>
+        <legend>Band</legend>
+        <label><input type="checkbox" name="band" value="strong" checked> strong</label>
+        <label><input type="checkbox" name="band" value="good" checked> good</label>
+        <label><input type="checkbox" name="band" value="weak" checked> weak</label>
+        <label><input type="checkbox" name="band" value="excluded"> excluded</label>
+      </fieldset>
+      <label>Remote
+        <select name="remote">
+          <option value="">any</option><option>remote</option><option>hybrid</option>
+          <option>onsite</option><option>unknown</option>
+        </select>
+      </label>
+      <label>Status
+        <select name="status">
+          <option value="">any</option><option>discovered</option><option>saved</option>
+          <option>applied</option><option>interview</option><option>offer</option>
+          <option>rejected</option><option>archived</option>
+        </select>
+      </label>
+      <label>Min score <input name="min_score" type="number" min="0" max="100" size="4"></label>
+      <label>Sort
+        <select name="sort">
+          <option value="score">score</option><option value="posted">posted</option>
+          <option value="updated">updated</option>
+        </select>
+      </label>
+      <button type="submit">Search</button>
+    </form>
+    <p id="error" role="alert" hidden></p>
+    <table>
+      <thead><tr><th>Score</th><th>Job</th><th>Company</th><th>Remote</th><th>Posted</th><th>Status</th><th>Source</th></tr></thead>
+      <tbody id="jobs"></tbody>
+    </table>
+    <p id="empty" hidden>No jobs match these filters.</p>
+    <button id="more" hidden>More</button>
+  </main>
+</body>
+</html>
