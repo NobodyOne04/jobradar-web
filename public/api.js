@@ -47,7 +47,8 @@ export function sourceLinks(sources) {
     .filter((s) => !seen.has(s.url) && seen.add(s.url))
     .map((s) =>
       el("span", { class: "source" },
-        el("a", { href: s.url, target: "_blank", rel: "noopener noreferrer" }, s.kind),
+        el("a", { href: s.url, class: "apply", target: "_blank", rel: "noopener noreferrer" },
+          `Apply on ${s.kind} ↗`),
         s.attribution ? ` (${s.attribution})` : "",
         s.closed ? " (closed)" : ""));
 }

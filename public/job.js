@@ -75,7 +75,7 @@ async function render() {
       el("p", {}, job.company_name, " · ", job.remote_policy, " · ", job.location_text),
       el("p", { class: "muted" },
         `posted ${date(job.posted_at)}`, job.closed_at ? ` · closed ${date(job.closed_at)}` : ""),
-      el("p", {}, "Apply: ", ...sourceLinks(job.sources)),
+      el("p", {}, ...sourceLinks(job.sources)),
       applicationSection(job),
       matchSection(job.match),
       el("section", {}, el("h2", {}, "Description"),
