@@ -68,6 +68,43 @@ export function ring(match, big = false) {
 
 export const bandTag = (band) => el("span", { class: `tag band c-${band}` }, band);
 
+// safeHTML(html): job descriptions come from external boards, so their HTML is rebuilt from an
+// allowlist, never inserted into the page as is. Only the tags below survive, with no
+// attributes except an http(s) href on links (el() drops any other). Unknown tags are
+// unwrapped (their text kept); dangerous ones are dropped with their content.
+const KEEP = { P: "p", BR: "br", UL: "ul", OL: "ol", LI: "li", STRONG: "strong", B: "strong", EM: "em",
+  I: "em", U: "u", A: "a", BLOCKQUOTE: "blockquote", CODE: "code", PRE: "pre", HR: "hr", DIV: "div",
+  TABLE: "table", THEAD: "thead", TBODY: "tbody", TR: "tr", TD: "td", TH: "th",
+  H1: "h3", H2: "h3", H3: "h4", H4: "h4", H5: "h4", H6: "h4" };
+const DROP = new Set(["SCRIPT", "STYLE", "IFRAME", "OBJECT", "EMBED", "NOSCRIPT", "TEMPLATE", "SVG",
+  "MATH", "FORM", "INPUT", "BUTTON", "SELECT", "TEXTAREA", "IMG", "VIDEO", "AUDIO", "CANVAS", "LINK", "META"]);
+
+export function safeHTML(html) {
+  // Parsed in a detached document: it has no browsing context, so nothing runs or loads. The
+  // page's CSP may still log a board's inline styles or handlers as blocked; that is harmless.
+  const doc = document.implementation.createHTMLDocument("");
+  doc.body.innerHTML = html;
+  const out = document.createDocumentFragment();
+  (function walk(src, dst) {
+    for (const n of src.childNodes) {
+      if (n.nodeType === Node.TEXT_NODE) {
+        dst.append(n.textContent);
+      } else if (n.nodeType === Node.ELEMENT_NODE && !DROP.has(n.tagName)) {
+        const tag = KEEP[n.tagName];
+        if (!tag) {
+          walk(n, dst); // unwrap: keep the text, drop the element
+          continue;
+        }
+        const attrs = tag === "a" ? { href: n.getAttribute("href") ?? "", target: "_blank", rel: "noopener noreferrer" } : {};
+        const e = el(tag, attrs);
+        walk(n, e);
+        dst.append(e);
+      }
+    }
+  })(doc.body, out);
+  return out;
+}
+
 // places(location_text, limit): one chip per place. Adapters join places with "; " and a long
 // country list with ", "; a "(UTC-5 to UTC+3)" range gets its own chip. "San Francisco, CA"
 // stays whole: a segment is split on commas only when it is a list (3+ commas).
