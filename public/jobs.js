@@ -1,4 +1,4 @@
-import { listJobs, el, ago, ring, bandTag, sourceLinks } from "./api.js";
+import { listJobs, el, ago, ring, bandTag, places, sourceLinks } from "./api.js";
 
 const form = document.getElementById("filters");
 const list = document.getElementById("jobs");
@@ -26,12 +26,10 @@ function formParams() {
   return params;
 }
 
-const REMOTE_LABEL = { remote: "Remote", hybrid: "Hybrid", onsite: "On-site", unknown: "Remote: unknown" };
+const REMOTE_LABEL = { remote: "remote", hybrid: "hybrid", onsite: "on-site", unknown: "remote: unknown" };
 
 function card(job) {
   const m = job.match;
-  // "Remote: Germany, Poland" next to a "Remote" tag says it twice: keep the places.
-  const where = (job.location_text || "").replace(/^Remote:\s*/i, "");
   return el("article", { class: "card" },
     ring(m),
     el("div", {},
@@ -40,9 +38,9 @@ function card(job) {
       el("div", { class: "meta" },
         m ? bandTag(m.band) : null,
         el("span", { class: `tag${job.remote_policy === "unknown" ? " warn" : ""}` }, REMOTE_LABEL[job.remote_policy] ?? job.remote_policy),
-        where ? el("span", { class: "tag", title: where }, where) : null,
         job.posted_at ? el("span", { class: "tag" }, ago(job.posted_at)) : null,
-        m?.stale ? el("span", { class: "tag warn", title: "scored by an older model or profile" }, "stale") : null)),
+        m?.stale ? el("span", { class: "tag warn", title: "scored by an older model or profile" }, "stale") : null),
+      el("div", { class: "places" }, ...places(job.location_text, 4))),
     el("div", { class: "card-side" },
       el("span", { class: `status-pill s-${job.application.status}` }, job.application.status),
       ...sourceLinks(job.sources.slice(0, 1), { small: true })));

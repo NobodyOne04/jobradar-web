@@ -68,17 +68,45 @@ export function ring(match, big = false) {
 
 export const bandTag = (band) => el("span", { class: `tag band c-${band}` }, band);
 
-// Board credits (Himalayas §113, ADR 0013): every link keeps its board's attribution next to it.
+// places(location_text, limit): one chip per place. Adapters join places with "; " and a long
+// country list with ", "; a "(UTC-5 to UTC+3)" range gets its own chip. "San Francisco, CA"
+// stays whole: a segment is split on commas only when it is a list (3+ commas).
+export function places(text, limit = Infinity) {
+  let rest = (text || "").replace(/^Remote:\s*/i, "").trim();
+  const zone = rest.match(/\((UTC[^)]*)\)\s*$/);
+  if (zone) rest = rest.slice(0, zone.index).trim();
+  const items = rest.split(";").flatMap((seg) => {
+    seg = seg.trim().replace(/^remote(,\s*|$)/i, ""); // the remote tag already says it
+    return (seg.match(/,/g) ?? []).length >= 3 ? seg.split(",") : [seg];
+  }).map((p) => p.trim()).filter(Boolean);
+  const chips = items.slice(0, limit).map((p) => el("span", { class: "tag place", title: p }, p));
+  if (items.length > limit) {
+    const hidden = items.slice(limit);
+    chips.push(el("span", { class: "tag more", title: hidden.join(", ") }, `+${hidden.length} more`));
+  }
+  if (zone) chips.push(el("span", { class: "tag zone" }, zone[1]));
+  return chips;
+}
+
+// Board credits (Himalayas §113, ADR 0013): every link keeps its board's attribution next to
+// it. Dev Global Jobs' license asks for a visible "Powered by Dev Global Jobs" link to its
+// site wherever its jobs are shown: it sits under the link of each of its jobs.
+const CREDIT_LINK = { devglobaljobs: ["Powered by Dev Global Jobs", "https://devglobaljobs.com"] };
+
 export function sourceLinks(sources, { small = false } = {}) {
   const seen = new Set();
   return sources
     .filter((s) => !seen.has(s.url) && seen.add(s.url))
-    .map((s, i) =>
-      el("span", { class: "source" },
+    .map((s, i) => {
+      const credit = CREDIT_LINK[s.kind];
+      return el("span", { class: "source" },
         el("a", {
           href: s.url, target: "_blank", rel: "noopener noreferrer",
           class: `btn${small ? " small" : ""}${i === 0 && !s.closed ? " primary" : ""}`,
-        }, `Apply on ${s.kind} ↗`),
-        s.attribution ? el("span", { class: "attribution" }, s.attribution) : null,
-        s.closed ? el("span", { class: "attribution" }, "closed") : null));
+        }, `apply on ${s.kind} ↗`),
+        credit
+          ? el("a", { class: "attribution", href: credit[1], target: "_blank", rel: "noopener" }, credit[0])
+          : s.attribution ? el("span", { class: "attribution" }, s.attribution) : null,
+        s.closed ? el("span", { class: "attribution" }, "closed") : null);
+    });
 }

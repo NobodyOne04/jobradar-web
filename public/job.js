@@ -1,7 +1,7 @@
-import { getJob, setStatus, el, date, ago, ring, bandTag, sourceLinks } from "./api.js";
+import { getJob, setStatus, el, date, ago, ring, bandTag, places, sourceLinks } from "./api.js";
 
 const STATUSES = ["saved", "applied", "interview", "offer", "rejected", "archived"];
-const REMOTE_LABEL = { remote: "Remote", hybrid: "Hybrid", onsite: "On-site", unknown: "Remote: unknown" };
+const REMOTE_LABEL = { remote: "remote", hybrid: "hybrid", onsite: "on-site", unknown: "remote: unknown" };
 const id = new URLSearchParams(location.search).get("id");
 const article = document.getElementById("job");
 const error = document.getElementById("error");
@@ -118,8 +118,6 @@ async function render() {
   try {
     const job = await getJob(id);
     document.title = `${job.title} · jobradar`;
-    // "Remote: Germany, Poland" next to a "Remote" tag says it twice: keep the places.
-    const where = (job.location_text || "").replace(/^Remote:\s*/i, "");
     article.replaceChildren(
       el("section", { class: "hero" },
         ring(job.match, true),
@@ -129,10 +127,10 @@ async function render() {
           el("div", { class: "meta" },
             job.match ? bandTag(job.match.band) : null,
             el("span", { class: `tag${job.remote_policy === "unknown" ? " warn" : ""}` }, REMOTE_LABEL[job.remote_policy] ?? job.remote_policy),
-            where ? el("span", { class: "tag", title: where }, where) : null,
-            job.posted_at ? el("span", { class: "tag", title: date(job.posted_at) }, `posted ${ago(job.posted_at)}`) : null,
+                job.posted_at ? el("span", { class: "tag", title: date(job.posted_at) }, `posted ${ago(job.posted_at)}`) : null,
             job.closed_at ? el("span", { class: "tag warn" }, `closed ${date(job.closed_at)}`) : null),
-          el("div", { class: "apply" }, ...sourceLinks(job.sources)))),
+          el("div", { class: "places" }, ...places(job.location_text))),
+        el("div", { class: "apply" }, ...sourceLinks(job.sources))),
       el("div", { class: "layout" },
         el("div", {}, matchPanel(job.match), descriptionPanel(job.description_text)),
         el("aside", { class: "sticky" }, applicationPanel(job))));
