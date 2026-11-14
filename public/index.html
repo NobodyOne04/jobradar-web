@@ -8,46 +8,64 @@
   <script type="module" src="jobs.js"></script>
 </head>
 <body>
-  <header><h1><a href="index.html">jobradar</a></h1></header>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html" aria-label="jobradar home">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="2"/>
+          <circle cx="16" cy="16" r="8" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="2"/>
+          <g class="sweep"><path d="M16 16 L16 2 A14 14 0 0 1 28.1 9 Z" fill="#38d9c4" fill-opacity=".45"/></g>
+          <circle cx="16" cy="16" r="2.5" fill="#38d9c4"/>
+          <circle cx="22" cy="10" r="1.8" fill="#34d399"/>
+        </svg>
+        jobradar
+      </a>
+      <span class="tagline">Remote jobs, ranked against your profile</span>
+    </div>
+  </header>
   <main>
-    <form id="filters">
-      <label>Search <input name="q" type="search" placeholder="data engineer"></label>
-      <fieldset>
-        <legend>Band</legend>
-        <label><input type="checkbox" name="band" value="strong" checked> strong</label>
-        <label><input type="checkbox" name="band" value="good" checked> good</label>
-        <label><input type="checkbox" name="band" value="weak" checked> weak</label>
-        <label><input type="checkbox" name="band" value="excluded"> excluded</label>
-      </fieldset>
-      <label>Remote
-        <select name="remote">
-          <option value="">any</option><option>remote</option><option>hybrid</option>
-          <option>onsite</option><option>unknown</option>
-        </select>
-      </label>
-      <label>Status
-        <select name="status">
-          <option value="">any</option><option>discovered</option><option>saved</option>
-          <option>applied</option><option>interview</option><option>offer</option>
-          <option>rejected</option><option>archived</option>
-        </select>
-      </label>
-      <label>Min score <input name="min_score" type="number" min="0" max="100" size="4"></label>
-      <label>Sort
-        <select name="sort">
-          <option value="score">score</option><option value="posted">posted</option>
-          <option value="updated">updated</option>
-        </select>
-      </label>
-      <button type="submit">Search</button>
+    <form id="filters" class="filters" role="search">
+      <div class="search">
+        <div class="search-box">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="m11 11 4 4"/></svg>
+          <input name="q" type="search" placeholder="Search title, company or description, e.g. data engineer" aria-label="Search">
+        </div>
+        <button type="submit" class="btn primary">Search</button>
+      </div>
+      <div class="filter-row">
+        <div class="chips" role="group" aria-label="Match band">
+          <label class="chip-toggle c-strong"><input type="checkbox" name="band" value="strong" checked><span>Strong</span></label>
+          <label class="chip-toggle c-good"><input type="checkbox" name="band" value="good" checked><span>Good</span></label>
+          <label class="chip-toggle c-weak"><input type="checkbox" name="band" value="weak" checked><span>Weak</span></label>
+          <label class="chip-toggle c-excluded"><input type="checkbox" name="band" value="excluded"><span>Excluded</span></label>
+        </div>
+        <label class="field">Remote
+          <select name="remote">
+            <option value="">any</option><option>remote</option><option>hybrid</option>
+            <option>onsite</option><option>unknown</option>
+          </select>
+        </label>
+        <label class="field">Status
+          <select name="status">
+            <option value="">any</option><option>discovered</option><option>saved</option>
+            <option>applied</option><option>interview</option><option>offer</option>
+            <option>rejected</option><option>archived</option>
+          </select>
+        </label>
+        <label class="field">Min score <input name="min_score" type="number" min="0" max="100" placeholder="0"></label>
+        <label class="field">Sort
+          <select name="sort">
+            <option value="score">best match</option><option value="posted">newest</option>
+            <option value="updated">recently updated</option>
+          </select>
+        </label>
+      </div>
     </form>
-    <p id="error" role="alert" hidden></p>
-    <table>
-      <thead><tr><th>Score</th><th>Job</th><th>Company</th><th>Remote</th><th>Posted</th><th>Status</th><th>Apply</th></tr></thead>
-      <tbody id="jobs"></tbody>
-    </table>
-    <p id="empty" hidden>No jobs match these filters.</p>
-    <button id="more" hidden>More</button>
+    <p id="error" class="alert" role="alert" hidden></p>
+    <div class="results-meta"><span id="count" aria-live="polite"></span></div>
+    <div id="jobs" class="cards"></div>
+    <p id="empty" class="empty" hidden>No jobs match these filters. Try fewer filters or include weaker bands.</p>
+    <button id="more" class="btn wide" hidden>Load more</button>
   </main>
   <footer>
     <!-- Dev Global Jobs' license: a visible link wherever its jobs are shown (jobradar ADR 0013) -->
