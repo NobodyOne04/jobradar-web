@@ -23,7 +23,9 @@ No build step, no npm, no tests (ADR 0012): check changes in a browser against t
 - Job text comes from external boards: build DOM with `el()` (textContent), never
   `innerHTML`; links only for `http(s)` URLs. CSP `default-src 'self'`: no inline scripts or
   styles, no third-party assets.
-- Himalayas jobs: show "via Himalayas" with their link (`sourceLinks`); export nothing.
+- Board credits: `sourceLinks` shows each source's `attribution` ("via Himalayas", "via Remote OK"...)
+  next to its link; the footer's "Powered by Dev Global Jobs" link stays on every page (its
+  license); links stay followed (no `nofollow`: Remote OK). Export nothing.
 - Personal data (searches, notes, profile results): no access log for `/api/`, no analytics,
   no `console.log` of responses.
 - Plain ES modules; a build step or dependency needs a new ADR in `../jobradar/docs/adr/`.
