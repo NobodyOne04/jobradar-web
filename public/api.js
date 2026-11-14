@@ -40,15 +40,45 @@ export function el(tag, attrs = {}, ...children) {
 
 export const date = (s) => (s ? new Date(s).toLocaleDateString() : "");
 
-// Himalayas terms: its jobs keep their link and say "via Himalayas" (jobradar §113).
-export function sourceLinks(sources) {
+// ago("2026-11-10T...") -> "4d ago": recency matters more than the exact date in a list.
+export function ago(s) {
+  if (!s) return "";
+  const days = Math.floor((Date.now() - new Date(s).getTime()) / 86_400_000);
+  if (days < 1) return "today";
+  if (days < 30) return `${days}d ago`;
+  if (days < 365) return `${Math.floor(days / 30)}mo ago`;
+  return `${Math.floor(days / 365)}y ago`;
+}
+
+const BAND_COLOR = { strong: "--strong", good: "--good", weak: "--weak", excluded: "--excluded" };
+
+// ring(match, big): a conic-gradient score ring. Custom properties are set through the CSSOM,
+// which the CSP (no inline style attributes) allows.
+export function ring(match, big = false) {
+  if (!match) {
+    return el("div", { class: `ring pending${big ? " big" : ""}`, role: "img", "aria-label": "not scored yet" },
+      el("b", {}, "pending"));
+  }
+  const node = el("div", { class: `ring${big ? " big" : ""}`, role: "img",
+    "aria-label": `score ${match.score}, ${match.band}` }, el("b", {}, match.score));
+  node.style.setProperty("--score", String(match.score));
+  node.style.setProperty("--c", `var(${BAND_COLOR[match.band] ?? "--muted"})`);
+  return node;
+}
+
+export const bandTag = (band) => el("span", { class: `tag band c-${band}` }, band);
+
+// Board credits (Himalayas §113, ADR 0013): every link keeps its board's attribution next to it.
+export function sourceLinks(sources, { small = false } = {}) {
   const seen = new Set();
   return sources
     .filter((s) => !seen.has(s.url) && seen.add(s.url))
-    .map((s) =>
+    .map((s, i) =>
       el("span", { class: "source" },
-        el("a", { href: s.url, class: "apply", target: "_blank", rel: "noopener noreferrer" },
-          `Apply on ${s.kind} ↗`),
-        s.attribution ? ` (${s.attribution})` : "",
-        s.closed ? " (closed)" : ""));
+        el("a", {
+          href: s.url, target: "_blank", rel: "noopener noreferrer",
+          class: `btn${small ? " small" : ""}${i === 0 && !s.closed ? " primary" : ""}`,
+        }, `Apply on ${s.kind} ↗`),
+        s.attribution ? el("span", { class: "attribution" }, s.attribution) : null,
+        s.closed ? el("span", { class: "attribution" }, "closed") : null));
 }
