@@ -14,8 +14,8 @@ No build step, no npm, no tests (ADR 0012): check changes in a browser against t
 - `public/`: the site, served as is. `index.html` + `jobs.js` (job cards, filters in the URL and
   applied on change, keyset "Load more"), `job.html` + `job.js` (hero with score ring, match
   bars and skill chips, status panel and history), `api.js` (fetch wrappers, `el()` DOM builder,
-  `ring()`, `ago()`, `bandTag()`, `places()` location chips, `sourceLinks()`), `style.css`
-  (one night-blue theme in the archminimal style: cyan `#00e5ff` accent, monospace, thin lines,
+  `ring()`, `ago()`, `bandTag()`, `places()` location chips, `safeHTML()`, `sourceLinks()`), `style.css`
+  (one night-blue theme in the archminimal style, a CSS radar logo that always spins: cyan `#00e5ff` accent, monospace, thin lines,
   translucent panels; palette in the CSS variables at the top; no green)
 - `nginx.conf`: serves `public/`, proxies `/api/v1/` to `backend:8080` keeping the Host, sets
   CSP and other headers; `Dockerfile`: `nginx:1.29-alpine` + both
@@ -24,7 +24,9 @@ No build step, no npm, no tests (ADR 0012): check changes in a browser against t
 - Same origin only: the backend refuses a foreign `Origin` or Host (`withLocalOnly`). Keep
   `proxy_set_header Host $http_host`; never add CORS.
 - Job text comes from external boards: build DOM with `el()` (textContent), never
-  `innerHTML`; links only for `http(s)` URLs. CSP `default-src 'self'`: no inline scripts,
+  `innerHTML` on the page. Descriptions (`description_html`) go through `safeHTML()`: parsed in
+  a detached document, rebuilt from a tag allowlist with no attributes but an http(s) `href`;
+  keep that allowlist small (no `img`, `style`, `iframe`, forms); links only for `http(s)` URLs. CSP `default-src 'self'`: no inline scripts,
   style attributes, `data:` URLs or third-party assets (icons are inline SVG). Per-element
   values (score, bar width) go through `node.style.setProperty`, which CSP allows.
 - Board credits: `sourceLinks` shows each source's `attribution` ("via Himalayas", "via Remote OK"...)

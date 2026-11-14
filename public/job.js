@@ -1,4 +1,4 @@
-import { getJob, setStatus, el, date, ago, ring, bandTag, places, sourceLinks } from "./api.js";
+import { getJob, setStatus, el, date, ago, ring, bandTag, places, safeHTML, sourceLinks } from "./api.js";
 
 const STATUSES = ["saved", "applied", "interview", "offer", "rejected", "archived"];
 const REMOTE_LABEL = { remote: "remote", hybrid: "hybrid", onsite: "on-site", unknown: "remote: unknown" };
@@ -96,8 +96,10 @@ function applicationPanel(job) {
     events.length ? el("ol", { class: "timeline" }, ...events) : null);
 }
 
-function descriptionPanel(text) {
-  const body = el("div", { class: "description" }, text || "No description from this board.");
+function descriptionPanel(job) {
+  const body = job.description_html
+    ? el("div", { class: "description rich" }, safeHTML(job.description_html))
+    : el("div", { class: "description" }, job.description_text || "No description from this board.");
   const toggle = el("button", { type: "button", class: "btn small", hidden: "" }, "Show all");
   toggle.addEventListener("click", () => {
     body.classList.toggle("open");
@@ -132,7 +134,7 @@ async function render() {
           el("div", { class: "places" }, ...places(job.location_text))),
         el("div", { class: "apply" }, ...sourceLinks(job.sources))),
       el("div", { class: "layout" },
-        el("div", {}, matchPanel(job.match), descriptionPanel(job.description_text)),
+        el("div", {}, matchPanel(job.match), descriptionPanel(job)),
         el("aside", { class: "sticky" }, applicationPanel(job))));
   } catch (e) {
     article.replaceChildren();
