@@ -14,8 +14,9 @@ No build step, no npm, no tests (ADR 0012): check changes in a browser against t
 - `public/`: the site, served as is. `index.html` + `jobs.js` (job cards, filters in the URL and
   applied on change, keyset "Load more"), `job.html` + `job.js` (hero with score ring, match
   bars and skill chips, status panel and history), `api.js` (fetch wrappers, `el()` DOM builder,
-  `ring()`, `ago()`, `bandTag()`, `sourceLinks()`), `style.css` (dark default, light via
-  `prefers-color-scheme`, CSS variables at the top)
+  `ring()`, `ago()`, `bandTag()`, `places()` location chips, `sourceLinks()`), `style.css`
+  (one night-blue theme in the archminimal style: cyan `#00e5ff` accent, monospace, thin lines,
+  translucent panels; palette in the CSS variables at the top; no green)
 - `nginx.conf`: serves `public/`, proxies `/api/v1/` to `backend:8080` keeping the Host, sets
   CSP and other headers; `Dockerfile`: `nginx:1.29-alpine` + both
 
@@ -27,8 +28,9 @@ No build step, no npm, no tests (ADR 0012): check changes in a browser against t
   style attributes, `data:` URLs or third-party assets (icons are inline SVG). Per-element
   values (score, bar width) go through `node.style.setProperty`, which CSP allows.
 - Board credits: `sourceLinks` shows each source's `attribution` ("via Himalayas", "via Remote OK"...)
-  next to its link; the footer's "Powered by Dev Global Jobs" link stays on every page (its
-  license); links stay followed (no `nofollow`: Remote OK). Export nothing.
+  under its link. Dev Global Jobs' license needs a visible "Powered by Dev Global Jobs" link to
+  its site wherever its jobs show: `CREDIT_LINK` puts it under each of its jobs' links (there is
+  no site footer). Links stay followed (no `nofollow`: Remote OK). Export nothing.
 - Personal data (searches, notes, profile results): no access log for `/api/`, no analytics,
   no `console.log` of responses.
 - Plain ES modules; a build step or dependency needs a new ADR in `../jobradar/docs/adr/`.
